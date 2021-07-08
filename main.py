@@ -5,7 +5,6 @@ import time
 #正規表現モジュールreをインポートする
 import re
 # 例外処理用のlibraryをインポートする
-from selenium.common.exceptions import NoSuchElementException
 
 
 st.title('課題：川口市立図書館の蔵書検索システムから予約数をスクレイピングして、人気の本を可視化する')
