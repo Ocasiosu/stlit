@@ -4,10 +4,6 @@ import pandas as pd
 import time
 
 
-pip install selenium
-apt-get update
-apt install chromium-chromedriver
-cp /usr/lib/chromium-browser/chromedriver /usr/bin
 
 from selenium import webdriver
 options = webdriver.ChromeOptions()
@@ -18,14 +14,20 @@ options.add_argument('--disable-dev-shm-usage')
 driver = webdriver.Chrome('chromedriver',options=options)
 
 st.title('川口市立図書館の蔵書を予約数順にソート')
-st.title('Streamlit上でSeleniumを動作させることができない\n⇨ローカル上でSeleniumを使用して取得したランキングを掲載することしかできない')
+st.title('問題点：Streamlit上でSeleniumを動作させることができない')
+"もともとの考えでは、Webアプリとして公開。"
+"誰でも好きな検索ワードで検索できて"
+"予約件数順にリストアップされて便利！ってのを実現したかった"
+
+"ローカル上でSeleniumを使用して取得したcsvをもとに"
+"SQLデータベースを作成して。。。"
 
 kensaku_text= st.text_input('検索ワードを入力してください')
 "検索ワードは",kensaku_text,"です"
 
 
 if st.checkbox('検索してみる'):
-    st.write('検索結果')
+    #st.write('検索結果')
     driver = webdriver.Chrome('chromedriver.exe')
     driver.get('https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCH1.CSP')
     search_box = driver.find_element_by_xpath('/html/body/div[2]/form/div/div[2]/div[3]/div[1]/div[3]/input')
@@ -38,17 +40,61 @@ if st.checkbox('検索してみる'):
     driver.get("https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCHLIST.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&FLG=LIST&SORT=-3&HOLD=NOHOLD&WRTCOUNT=100&HOLDSEL=2&PAGE=1")
     #&SRCID=6 この数字がずれると何も表示されなくなるが、この部分を消してしまえば問題なく表示される
     title = driver.find_element_by_tag_name('h1')
-    st.write(title.text)
+    st.write(title.text,"← 「検索結果一覧」 と表示されればページが取得できています")
     elems_tr = driver.find_elements_by_tag_name('tr')
     st.write(elems_tr[12].text)
+    #タイトルを収集する
+    titles = []
+    for i in range(100):
+        title = elems_tr[i+12].find_element_by_tag_name('a')
+        titles.append(title.text)
+    #tdタグから出版社リストを取得する。[4]番目が出版社
+    publishers = []
+    for i in range(100):
+        elems_td = elems_tr[i+12].find_elements_by_tag_name('td')
+        publish = elems_td[4].text
+        publishers.append(publish)
+        #tdタグの[5]番目が出版日を表している
+    release_dates = []
+    for i in range(100):
+        elems_td = elems_tr[i+12].find_elements_by_tag_name('td')
+        release_date = elems_td[5].text
+        release_dates.append(release_date)
+        #tdタグの[6]番目がざいかを表している
+    availables = []
+    for i in range(100):
+        elems_td = elems_tr[i+12].find_elements_by_tag_name('td')
+        available = elems_td[6].text
+        availables.append(available)
+        #titleからget_attributeでhrefの中身を取り出して、hrefリストを作る
+    urls = []
+    for i in range(100):
+        title = elems_tr[i+12].find_element_by_tag_name('a')
+        url_title = title.get_attribute('href')
+        urls.append(url_title)
+    df = pd.DataFrame()
+    df['タイトル'] = titles
+    df['出版社'] = publishers
+    df['出版日'] = release_dates
+    df['在架'] = availables
+    df['href'] = urls
+    df
 
 
 
 
 
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
 
 
-st.write('DataFrame')
+st.write('DataFrame表示テスト')
 
 #df= pd.DataFrame({
 #    '1列目':[1,2,3,4],
