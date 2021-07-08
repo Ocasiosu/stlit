@@ -6,37 +6,43 @@ import time
 import re
 
 
-st.title('テーマ：川口市立図書館の蔵書検索システムから予約数をスクレイピングして、人気の本を可視化する')
-st.title('問題点：Streamlit上でSeleniumを動作させることができない')
+st.title('テーマ：川口市立図書館の蔵書検索システムをスクレイピング。予約数から人気の本を可視化する')
+st.title('問題点：Streamlit(Webアプリ)上でSeleniumを動作させることができない')
 """
 ### 川口市立図書館蔵書検索システム
 ### https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCH1.CSP
 ### SeleniumはJavaScriptベースで構築された蔵書検索システムをスクレイピングできる唯一の方法
-### しかし動作可能なのはローカル上のみ
+### しかし動作可能なのはローカル環境のみ
 ## もともとの考え
 ### Webアプリとして公開⇨誰でも好きな検索ワードで検索可能
 ### 検索結果が予約件数順にリストアップされて人気の本がひと目で分かる！
 
+## 実際にできたこと
+### StreamlitでPythonコードをWebアプリ化
+### あらかじめローカル環境で作成したcsvファイルの表示
 
-どうすれば実現できる？\n
-ローカル上でSeleniumを使用して取得したxlsxをもとにデータベースを作成する？
+ローカル上でSeleniumを使用して取得したcsvをもとにデータベースを作成する？
 """
 
-kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください')
 
-if kensaku_text:
-    kensaku_text,"で検索します"
-    kensaku_text,"で検索した結果をここに表示する予定でした"
-
-'ローカルでの検索結果を表示する'
+'ローカル環境で取得した予約数順の検索結果を表示する'
 # #expander
-# expander=st.beta_expander('Pythonでの検索結果')
-# df1 = pd.read_excel('./data/kensaku_python.xlsx',index_col=0)
-# expander.write(df1)
+expander=st.beta_expander('pythonでの検索結果')
+df1 = pd.read_csv('./data/kensaku_python.csv',index_col=0)
+expander.write(df1)
 
 expander=st.beta_expander('お金での検索結果')
 df2 = pd.read_csv('./data/kensaku_お金.csv',index_col=0)
 expander.write(df2)
+
+expander=st.beta_expander('人生での検索結果')
+df3 = pd.read_csv('./data/kensaku_人生.csv',index_col=0)
+expander.write(df3)
+
+kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください(実際には機能しません)')
+if kensaku_text:
+    kensaku_text,"で検索します"
+    kensaku_text,"で検索した結果をここに表示する予定でした"
 
 # if st.checkbox('検索してみる'):
 #     #st.write('検索結果')
@@ -141,7 +147,7 @@ expander.write(df2)
 
 #マジックコマンド
 """
-# 章    以下、Streamlitの文法練習
+# 章    以下、Streamlitでできる機能のデモンストレーション
 ## 節   文字の大きさ調節
 ### 項目    文字の大きさ・小
 ```
