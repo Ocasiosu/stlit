@@ -1,12 +1,21 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-from selenium import webdriver
 import time
 
 
-#川口市立図書館のログインページを開く
+pip install selenium
+apt-get update
+apt install chromium-chromedriver
+cp /usr/lib/chromium-browser/chromedriver /usr/bin
 
+from selenium import webdriver
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+options.add_argument('--no-sandbox')
+options.add_argument('--disable-dev-shm-usage')
+
+driver = webdriver.Chrome('chromedriver',options=options)
 
 st.title('川口市立図書館の蔵書を予約数順にソート')
 st.title('Streamlit上でSeleniumを動作させることができない\n⇨ローカル上でSeleniumを使用して取得したランキングを掲載することしかできない')
