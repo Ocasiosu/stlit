@@ -1,8 +1,43 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+from selenium import webdriver
+import time
 
-st.title('Streamlit超入門')
+
+#川口市立図書館のログインページを開く
+
+
+st.title('川口市立図書館の蔵書を予約数順にソート')
+st.title('Streamlit上でSeleniumを動作させることができない\n⇨ローカル上でSeleniumを使用して取得したランキングを掲載することしかできない')
+
+kensaku_text= st.text_input('検索ワードを入力してください')
+"検索ワードは",kensaku_text,"です"
+
+
+if st.checkbox('検索してみる'):
+    st.write('検索結果')
+    driver = webdriver.Chrome('chromedriver.exe')
+    driver.get('https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCH1.CSP')
+    search_box = driver.find_element_by_xpath('/html/body/div[2]/form/div/div[2]/div[3]/div[1]/div[3]/input')
+    search_box.send_keys(kensaku_text)
+    elem_kensaku_btn = driver.find_element_by_name('srchbtn2')
+    elem_kensaku_btn.click()
+    
+    #表示件数を100件にするために、urlの後ろにクエリをつけたアドレスに移動する
+    time.sleep(1)
+    driver.get("https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCHLIST.CSP?DB=LIB&MODE=1&PID2=OPWSRCH1&FLG=LIST&SORT=-3&HOLD=NOHOLD&WRTCOUNT=100&HOLDSEL=2&PAGE=1")
+    #&SRCID=6 この数字がずれると何も表示されなくなるが、この部分を消してしまえば問題なく表示される
+    title = driver.find_element_by_tag_name('h1')
+    st.write(title.text)
+    elems_tr = driver.find_elements_by_tag_name('tr')
+    st.write(elems_tr[12].text)
+
+
+
+
+
+
 
 st.write('DataFrame')
 
