@@ -49,7 +49,7 @@ st.map(df2)
 from PIL import Image
 if st.checkbox('ShowImage'):
     st.write('Display Image')
-    img = Image.open('image/strongzeroIMGL1591_TP_V4.jpg')
+    img = Image.open('hiyoko.png')
     st.image(img,caption='キャプション',use_column_width=True)
     #なぜかファイルが存在しないって言われる
 "インタラクティブなウィジェットたち"
