@@ -4,45 +4,98 @@ import pandas as pd
 import time
 #正規表現モジュールreをインポートする
 import re
+#画像を表示
+from PIL import Image
 
+st.title('川口市立図書館の蔵書検索システムをスクレイピングで改良')
+st.title('予約数から人気の本を可視化するサービス')
 
-st.title('テーマ：川口市立図書館の蔵書検索システムをスクレイピング。予約数から人気の本を可視化する')
-st.title('問題点：Streamlit(Webアプリ)上でSeleniumを動作させることができない')
 """
-### 川口市立図書館蔵書検索システム
+### 情報収集元：川口市立図書館蔵書検索システム
 ### https://www.kawaguchi-lib.jp/opw1/OPW/OPWSRCH1.CSP
-### SeleniumはJavaScriptベースで構築された蔵書検索システムをスクレイピングできる唯一の方法
-### しかし動作可能なのはローカル環境のみ
-## もともとの考え
-### Webアプリとして公開⇨誰でも好きな検索ワードで検索可能
+"""
+
+"""
+# 作ろうとしたもの
+## Webアプリとして公開
+### 誰でも好きな検索ワードで検索可能なサービス
 ### 検索結果が予約件数順にリストアップされて人気の本がひと目で分かる！
-
-## 実際にできたこと
-### StreamlitでPythonコードをWebアプリ化
-### あらかじめローカル環境で作成したcsvファイルの表示
-
-ローカル上でSeleniumを使用して取得したcsvをもとにデータベースを作成する？
 """
 
 
-'ローカル環境で取得した予約数順の検索結果を表示する'
-# #expander
-expander=st.beta_expander('pythonでの検索結果')
-df1 = pd.read_csv('./data/kensaku_python.csv',index_col=0)
-expander.write(df1)
+"""
+# 課題：Streamlit(Webアプリ)上でSeleniumを動作させることができない
+## SeleniumはJavaScriptベースで構築された蔵書検索システムをスクレイピングできる唯一の方法
+### しかしSeleniumが動作可能なのはローカル環境のみ。
+"""
+#画像を表示
 
-expander=st.beta_expander('お金での検索結果')
+img2 = Image.open('./image/kousou_tosyokan.png')
+st.image(img2,caption='ローカル環境でSeleniumが行う処理')
+
+
+
+
+
+"""
+# 実際にできたこと
+## Streamlitで.pyファイルをWebアプリ化
+### （このページはpythonコードで構築されています。）
+## あらかじめローカル環境で作成したcsvファイルの表示
+
+"""
+st.markdown('**_python_での検索結果を予約件数順にソートしたもの 2021年7月9日取得**')
+df1 = pd.read_csv('./data/kensaku_python.csv',index_col=0)
+st.write(df1)
+# #expander
+expander=st.beta_expander('お金での検索結果 2021年7月8日取得')
 df2 = pd.read_csv('./data/kensaku_お金.csv',index_col=0)
 expander.write(df2)
 
-expander=st.beta_expander('人生での検索結果')
+expander=st.beta_expander('人生での検索結果 2021年7月8日取得')
 df3 = pd.read_csv('./data/kensaku_人生.csv',index_col=0)
 expander.write(df3)
 
-kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください(実際には機能しません)')
-if kensaku_text:
-    kensaku_text,"で検索します"
-    kensaku_text,"で検索した結果をここに表示する予定でした"
+"""
+# なぜこのテーマを選択したのか
+## 既存のシステムでも、スクレイピングと組み合わせれば、もっと活用の幅が広がるのではないか
+### 私は川口市立図書館をしばしば利用しています。
+### しかしウェブ上の蔵書検索システムは、昔から変わらず、今となっては古さを感じるUIのまま。
+### 特に私が注目するのは、数ある蔵書の中でどれが人気なのかを知りたいということです。
+### それは今まで視野になかった本に出会うきっかけになり、価値創造にも繋がります。
+### それを知るためには予約数が一つの指標になると思います。
+### しかし、予約数を知るためには、毎回検索結果から本のタイトルをクリック、本の詳細ページに遷移する必要があります。
+"""
+
+
+img1 = Image.open('./image/100kai.png')
+st.image(img1,caption='1冊ごとに詳細ページに遷移しないと予約数がわからない')
+
+
+"""
+# 困難だったポイント
+## for文を用いて検索結果一覧のすべての本の詳細ページにアクセス
+## 各本の予約待ち件数を取得するプロセス
+### 一言で予約数と言っても
+### 「予約確保」
+### 「予約待ち：～件」
+### 「予約があるものの、予約数の表記なし」
+### などさまざまな表記パターンが存在し、そのたびにif文やtry:except構文で場合分けをしながら処理を行いました。
+### この部分でエラーの出ないコードを書くために、2日程度を要しました。
+"""
+
+img3 = Image.open('./image/yoyaku.png')
+st.image(img3,caption="予約数に関しての表記")
+
+'予約待ちの件数表記がない場合もあるので、if文やtry:except構文で場合分けして、splitメソッドで予約待ち件数だけを抽出しました'
+img4 = Image.open('./image/baaiwake.png')
+st.image(img4,caption="forループで本の詳細ページに1件ずつアクセスして予約待ち件数を取得している")
+
+
+# kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください(現在は機能しませんが、将来的にはデータベースから検索可能になる予定)')
+# if kensaku_text:
+#     kensaku_text,"で検索します"
+#     kensaku_text,"で検索した結果をここに表示する予定でした"
 
 # if st.checkbox('検索してみる'):
 #     #st.write('検索結果')
@@ -133,100 +186,91 @@ if kensaku_text:
 #     df2 = df.sort_values('予約件数', ascending=False).drop(columns='href').reset_index()
 #     df2
 
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
-"\n"
 
 
 
+# #マジックコマンド
+# """
+# # 章    以下、Streamlitでできる機能のデモンストレーション
+# ## 節   文字の大きさ調節
+# ### 項目    文字の大きさ・小
+# ```
+# コメントアウトの方法
+# df= pd.DataFrame({
+#     '1列目':[1,2,3,4],
+#     '2列目':[10,20,30,40]
+# })
+# ```
+# """
+# st.write('DataFrame表示テスト')
 
-#マジックコマンド
-"""
-# 章    以下、Streamlitでできる機能のデモンストレーション
-## 節   文字の大きさ調節
-### 項目    文字の大きさ・小
-```
-コメントアウトの方法
-df= pd.DataFrame({
-    '1列目':[1,2,3,4],
-    '2列目':[10,20,30,40]
-})
-```
-"""
-st.write('DataFrame表示テスト')
+# #df= pd.DataFrame({
+# #    '1列目':[1,2,3,4],
+# #    '2列目':[10,20,30,40]
+# #})
+# df= pd.DataFrame(
+#     np.random.rand(20,3),
+#     columns=['a','b','c'])
 
-#df= pd.DataFrame({
-#    '1列目':[1,2,3,4],
-#    '2列目':[10,20,30,40]
-#})
-df= pd.DataFrame(
-    np.random.rand(20,3),
-    columns=['a','b','c'])
+# df2= pd.DataFrame(
+#     np.random.rand(100,2)/[50,50]+[35.69,139.70],
+#     columns=['lat','lon'])
 
-df2= pd.DataFrame(
-    np.random.rand(100,2)/[50,50]+[35.69,139.70],
-    columns=['lat','lon'])
+# #st.writeだとwidthなどの引数を使えない
+# st.write(df)
+# st.dataframe(df.style.highlight_max(axis=0),width=200,height=200)
+# #tableはstaticなテーブルを作りたいときに使用する
+# st.table(df.style.highlight_max(axis=0))
+# #折れ線グラフを書く
+# st.line_chart(df)
+# st.area_chart(df)
+# st.bar_chart(df)
 
-#st.writeだとwidthなどの引数を使えない
-st.write(df)
-st.dataframe(df.style.highlight_max(axis=0),width=200,height=200)
-#tableはstaticなテーブルを作りたいときに使用する
-st.table(df.style.highlight_max(axis=0))
-#折れ線グラフを書く
-st.line_chart(df)
-st.area_chart(df)
-st.bar_chart(df)
+# #マップをプロット
+# st.map(df2)
 
-#マップをプロット
-st.map(df2)
+# #画像を表示
+# from PIL import Image
+# if st.checkbox('ShowImage'):
+#     st.write('Display Image')
+#     img = Image.open('hiyoko.png')
+#     st.image(img,caption='キャプション',use_column_width=True)
+#     #なぜかファイルが存在しないって言われる
+# "インタラクティブなウィジェットたち"
+# option = st.selectbox(
+#     "好きな数字は？",
+#     list(range(1,11))
+# )
 
-#画像を表示
-from PIL import Image
-if st.checkbox('ShowImage'):
-    st.write('Display Image')
-    img = Image.open('hiyoko.png')
-    st.image(img,caption='キャプション',use_column_width=True)
-    #なぜかファイルが存在しないって言われる
-"インタラクティブなウィジェットたち"
-option = st.selectbox(
-    "好きな数字は？",
-    list(range(1,11))
-)
+# "あなたの好きな数字は",option,"です"
 
-"あなたの好きな数字は",option,"です"
+# text= st.text_input('あなたの趣味を教えて下さい')
+# "あなたの趣味は",text,"です"
 
-text= st.text_input('あなたの趣味を教えて下さい')
-"あなたの趣味は",text,"です"
+# condition = st.slider('あなたの今の調子は？',0,100,50)
+# "コンディション：",condition
 
-condition = st.slider('あなたの今の調子は？',0,100,50)
-"コンディション：",condition
+# #レイアウトを整える
+# st.write('サイドバーに追加したいならは.sidebarを追加するだけ！')
+# #左右カラム分け
+# left_column,right_column=st.beta_columns(2)
+# button=left_column.button('右カラムに文字を表示')
+# if button:
+#     right_column.write('ここは右カラムです')
 
-#レイアウトを整える
-st.write('サイドバーに追加したいならは.sidebarを追加するだけ！')
-#左右カラム分け
-left_column,right_column=st.beta_columns(2)
-button=left_column.button('右カラムに文字を表示')
-if button:
-    right_column.write('ここは右カラムです')
+# #expander
+# expander=st.beta_expander('問い合わせ')
+# expander.write('問い合わせ内容を書く')
 
-#expander
-expander=st.beta_expander('問い合わせ')
-expander.write('問い合わせ内容を書く')
-
-#プログレスバー
-import time
-st.write('プログレスバーの表示')
-"Start!"
-latest_iteration=st.empty()
-bar = st.progress(0)
-for i in range(100):
-    time.sleep(0.1)
-    latest_iteration.text(f'Iteration{i+1}')
-    bar.progress(i+1)
+# #プログレスバー
+# import time
+# st.write('プログレスバーの表示')
+# "Start!"
+# latest_iteration=st.empty()
+# bar = st.progress(0)
+# for i in range(100):
+#     time.sleep(0.1)
+#     latest_iteration.text(f'Iteration{i+1}')
+#     bar.progress(i+1)
    
-"完了！"
+# "完了！"
