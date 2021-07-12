@@ -6,9 +6,99 @@ import time
 import re
 #画像を表示
 from PIL import Image
+# import sqlite3
 
-st.title('川口市立図書館の蔵書検索システムをスクレイピングで改良')
-st.title('予約数から人気の本を可視化するサービス')
+
+# DB = "./database/sample.db"
+
+# LIMIT = 50 # 一度に表示する出力結果の数
+# SORT = "DESC" # "DESC"：登録が新しい順，""：登録が古い順
+
+# DIC_ITEM = {"報告書名":"report", "委託先":"auther"}
+# DF_EMPTY = pd.DataFrame() # 空のデータフレーム
+
+# # RDBとのコネクションを確立
+# @st.cache(allow_output_mutation=True)
+# def done_connection():
+#     return sqlite3.connect(DB, check_same_thread=False)
+# conn = done_connection()
+
+
+# # RDBをSQLで検索、検索結果を返す（空白で複数キーワード検索可能）
+# def get_sql(item: str, key_word: str):
+#     #lst_kw = [f"{ DIC_ITEM[item] } LIKE '%{ kw }%'" for kw in key_word.split()]
+#     SQL = "SELECT * FROM daily WHERE " + " AND ".join(key_word) + " ORDER BY id " + SORT
+#     df_sql = pd.read_sql(SQL, conn)
+#     return df_sql
+
+# # 項目名とキーワードで検索し、メッセージと検索結果を返す
+# def get_report(item: str, key_word: str):
+#     if key_word == "":
+#         msg, df_data = "項目を選択して、キーワードを入力して下さい。", DF_EMPTY
+#     elif "%" in key_word:
+#         msg, df_data = "キーワードに「％」は使えません。", DF_EMPTY
+#     else:
+#         try:
+#             df_data = get_sql(item, key_word)
+#             if len(df_data) > LIMIT:
+#                 msg = f"該当した報告書 { len(df_data) }件 から、登録の新しい { LIMIT }件 を表示しました。"
+#             else:
+#                 msg = f"該当した報告書は、{ len(df_data) }件 です。"
+#         except:
+#             msg, df_data = "エラーが発生しました。", DF_EMPTY
+#         if df_data.empty:
+#             msg, df_data = "該当する報告書はありません。", DF_EMPTY
+#     return msg, df_data
+
+
+# #【入力】項目とキーワード
+# col1, col2 = st.beta_columns((1, 5))
+# with col1:
+#     item = st.radio("項　目：", tuple(DIC_ITEM))
+# with col2:
+#     key_word = st.text_input("キーワード：", value='')
+    
+# #【処理】検索
+# msg, df_data = get_report(item, key_word)
+
+# #【出力】検索結果
+# ## メッセージ
+# st.markdown(f"**{ msg }**")
+# ## 表　df_dataのカラム名
+# ## 'id', 'fy', 'fy_jp', 'num', 'report', 'auther', 'dept', 'capa', 'pdf', 'data', 'pdf_YN', 'data_YN'
+# if df_data.size: # 0：検索結果がない場合，1以上：検索結果がある場合
+#     result = '| 　報　告　書　名 | 委託先 | 報告書 | デ｜タ |\n|:--|:-:|:-:|:-:|\n'
+#     df_report = df_data.head(LIMIT) # 出力数の制限
+#     for _, r in df_report.iterrows():
+#         # 「管理No.（num）」「報告書名（report）」「委託先（auther）」列の処理
+#         row = f"|{ r['report'] }|{ r['auther'] }|"
+#         #「報告書（pdf）」列の処理
+#         if (r['pdf'] != ""):
+#             if r['pdf_YN']: # リンクあり
+#                 row += f"[●]({ r['pdf'] })|"
+#             else: # リンクなし
+#                 row += f"[×]({ r['pdf'] })|"
+#         else: # 報告書（pdf）なし
+#                 row += "|"
+#         #「データ（data）」列の処理
+#         if (r['data'] != ""):
+#             if r['data_YN']: # リンクあり
+#                 row += f"[●]({ r['data'] })|\n"
+#             else: # リンクなし
+#                 row += f"[×]({ r['data'] })|\n"
+#         else: # dataなし
+#             row += "|\n"    
+#         result += row
+#     #【出力】検索結果
+#     st.markdown(result)
+#     st.markdown("【凡例】●：リンク，×：リンク切れ")
+
+
+
+
+
+st.title('川口市立図書館の蔵書検索システムをPythonスクレイピングで改良')
+st.title('予約数から人気の本を可視化する')
 
 """
 ### 情報収集元：川口市立図書館蔵書検索システム
@@ -17,15 +107,21 @@ st.title('予約数から人気の本を可視化するサービス')
 
 """
 # 作ろうとしたもの
-## Webアプリとして公開
-### 誰でも好きな検索ワードで検索可能なサービス
-### 検索結果が予約件数順にリストアップされて人気の本がひと目で分かる！
-"""
+## 誰でも好きな検索ワードで検索可能なWebアプリ
+### 検索結果が予約件数順にリストアップされて、人気の本がひと目で分かる！
 
 
+
+## 課題1
+### SQLデータベースに関する勉強不足
+
 """
-# 課題：Streamlit(Webアプリ)上でSeleniumを動作させることができない
-## SeleniumはJavaScriptベースで構築された蔵書検索システムをスクレイピングできる唯一の方法
+img5 = Image.open('./image/sql.png')
+st.image(img5,caption="SQLite3とStreamlitとの連携でつまずく")
+
+"""
+## 課題2：Streamlit(Webアプリ)上でSeleniumを動作させることができない
+### SeleniumはJavaScriptベースで構築された蔵書検索システムをスクレイピングできる唯一の方法
 ### しかしSeleniumが動作可能なのはローカル環境のみ。
 """
 #画像を表示
@@ -62,20 +158,25 @@ expander.write(df3)
 ### 私は川口市立図書館をしばしば利用しています。
 ### しかしウェブ上の蔵書検索システムは、昔から変わらず、今となっては古さを感じるUIのまま。
 ### 特に私が注目するのは、数ある蔵書の中でどれが人気なのかを知りたいということです。
-### それは今まで視野になかった本に出会うきっかけになり、価値創造にも繋がります。
-### それを知るためには予約数が一つの指標になると思います。
-### しかし、予約数を知るためには、毎回検索結果から本のタイトルをクリック、本の詳細ページに遷移する必要があります。
+
+## 利用者のメリット：新しい本との出会い
+### 人気の本が瞬時にわかることで、今まで視野になかった本に出会うきっかけになります。
+### 人気の本を知るためには予約数が一つの指標になると思います。
+### しかし、現状では予約数を知るためには、毎回検索結果から本のタイトルをクリック、本の詳細ページに遷移する必要があります。
 """
-
-
 img1 = Image.open('./image/100kai.png')
 st.image(img1,caption='1冊ごとに詳細ページに遷移しないと予約数がわからない')
 
-
 """
+## 図書館職員のメリット：工数削減
+### 図書館の職員が利用者と同じシステム・UIを使っているかはわかりません
+### もし利用者のものとほぼ同じだった場合
+### 予約数を一括で取得することは、利用者よりも遥かに重要となるでしょう。
+### なぜなら、蔵書冊数を管理する上で、予約数の多い本を知ることは必須だからです。
+### 予約数を一括で取得するスクレイピング技術は職員の工数削減という面でも大きく役に立つと思います。
+
 # 困難だったポイント
-## for文を用いて検索結果一覧のすべての本の詳細ページにアクセス
-## 各本の予約待ち件数を取得するプロセス
+## for文を用いて各本の予約待ち件数を取得するプロセス
 ### 一言で予約数と言っても
 ### 「予約確保」
 ### 「予約待ち：～件」
@@ -91,7 +192,10 @@ st.image(img3,caption="予約数に関しての表記")
 img4 = Image.open('./image/baaiwake.png')
 st.image(img4,caption="forループで本の詳細ページに1件ずつアクセスして予約待ち件数を取得している")
 
-
+"""
+### 参考文献：諸外国の公共図書館に関する調査報告書 日本の公共図書館
+### https://www.mext.go.jp/a_menu/shougai/tosho/houkoku/06082211/013.pdf
+"""
 # kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください(現在は機能しませんが、将来的にはデータベースから検索可能になる予定)')
 # if kensaku_text:
 #     kensaku_text,"で検索します"
