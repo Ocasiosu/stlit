@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import numpy as np
 import pandas as pd
 import time
@@ -98,13 +99,34 @@ st.image(img1,caption='1冊ごとに詳細ページに遷移しないと予約�
 img3 = Image.open('./image/yoyaku.png')
 st.image(img3,caption="予約数に関しての表記")
 
+img5 = Image.open('./image/yoyakumati.png')
+st.image(img5,caption="予約待ち周辺の数字が一括して取得されてしまう中から、予約待ち件数だけを抜き出す")
+
+
 '予約待ちの件数表記がない場合もあるので、if文やtry:except構文で場合分けして、splitメソッドで予約待ち件数だけを抽出しました'
 img4 = Image.open('./image/baaiwake.png')
 st.image(img4,caption="forループで本の詳細ページに1件ずつアクセスして予約待ち件数を取得している")
 
 """
-### 参考文献：諸外国の公共図書館に関する調査報告書 日本の公共図書館
+# 手動で検索した場合との時間効率の違い
+## ・手動で検索して1件ずつ予約件数を調べた場合
+### ⇨**本1冊につき8秒程度**かかりました。
+## ・スクレイピングによって検索結果100冊分一括で予約件数を取得した場合
+### ⇨結果を予約件数順に並べ替えてcsv形式で出力するまで約100秒かかりました。
+### ⇨**本1冊ごとにかかる時間は1秒**となり、手動で予約待ち件数を取得するよりも
+### **7秒間/冊数の節約**になります
+"""
+components.html(
+    """
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/MwJ7kZH7ryw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    """,height = 600
+)
+
+
+"""
+## 参考文献：諸外国の公共図書館に関する調査報告書 日本の公共図書館
 ### https://www.mext.go.jp/a_menu/shougai/tosho/houkoku/06082211/013.pdf
+
 """
 # kensaku_text= st.text_input('デモンストレーション：検索ワードを入力してください(現在は機能しませんが、将来的にはデータベースから検索可能になる予定)')
 # if kensaku_text:
@@ -193,7 +215,8 @@ st.image(img4,caption="forループで本の詳細ページに1件ずつアク�
 #                 yoyakus.append(0)
 
 #         else:
-#             print('{}番目の本は在架ありです'.format(i+1))
+#        
+#      print('{}番目の本は在架ありです'.format(i+1))
 #             yoyakus.append(0)
 #         print("yoyakusリストには{}個の要素が格納されています".format(len(yoyakus)))
 #     df['予約件数']=yoyakus
